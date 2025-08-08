@@ -1,13 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
-
-# 项目名称和版本
-project(HelloWorld VERSION 1.0)
-
-# 设置 C++ 标准
+project(ContactListDemo VERSION 1.0)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# 添加可执行文件
-add_executable(helloworld ContactList.cpp)
-
-#add_executable(helloworld2 hello.cpp)
+add_executable(ContactDemo main.cpp ContactList.cpp)
