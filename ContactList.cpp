@@ -2,6 +2,7 @@
 #include <string>
 #include <limits>
 #include <sstream>
+#include <fstream>
 #define MAX 1000
 using namespace std;
 
@@ -16,6 +17,47 @@ struct Person {
 struct ContactList {
     Person m_PersonArray[MAX]; //联系人数组
     int m_Size; //当前联系人个数
+
+    void saveToFile(const std::string& filename) const {
+        std::ofstream ofs(filename);
+        for (int i = 0; i < m_Size; ++i) {
+            ofs << m_PersonArray[i].m_Name << '\n'
+                << m_PersonArray[i].m_Sex << '\n'
+                << m_PersonArray[i].m_Age << '\n'
+                << m_PersonArray[i].m_Number << '\n'
+                << m_PersonArray[i].m_Address << '\n';
+        }
+    }
+
+    void loadFromFile(const std::string& filename) {
+        std::ifstream ifs(filename);
+        m_Size = 0;
+        while (ifs && m_Size < MAX) {
+            std::string name, sexStr, ageStr, number, address;
+            if (!std::getline(ifs, name)) break;
+            if (!std::getline(ifs, sexStr)) break;
+            if (!std::getline(ifs, ageStr)) break;
+            if (!std::getline(ifs, number)) break;
+            if (!std::getline(ifs, address)) break;
+
+            // 跳过空记录
+            if (name.empty()) continue;
+
+            try {
+                int sex = std::stoi(sexStr);
+                int age = std::stoi(ageStr);
+                m_PersonArray[m_Size].m_Name = name;
+                m_PersonArray[m_Size].m_Sex = sex;
+                m_PersonArray[m_Size].m_Age = age;
+                m_PersonArray[m_Size].m_Number = number;
+                m_PersonArray[m_Size].m_Address = address;
+                ++m_Size;
+            } catch (const std::exception&) {
+                // 跳过格式错误的记录
+                continue;
+            }
+        }
+    }
 };
 
 void showMenu(){
@@ -251,7 +293,7 @@ void clearPerson(ContactList *contactList) {
 
 int main() {
     ContactList contactList;
-    contactList.m_Size = 0; // 初始化联系人个数为0
+    contactList.loadFromFile("contacts.txt");
     string input;
     int choice = 0;
     do {
@@ -285,6 +327,7 @@ int main() {
                 break;
             case 0:
                 cout << "正在退出通讯录，欢迎下次使用..." << endl;
+                contactList.saveToFile("contacts.txt"); // 保存联系人到文件
                 return 0; // 退出程序
             default:
                 cout << "无效的选择，请重新输入！" << endl;
